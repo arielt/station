@@ -1,0 +1,27 @@
+services:
+  app:
+    container_name: app
+    build:
+      context: ../..
+      dockerfile: deployment/docker/Dockerfile.app
+    ports:
+      - "127.0.0.1:8888:80"
+    networks:
+      - internal
+
+  vault:
+    image: openbao/openbao:latest
+    container_name: vault
+    ports:
+      - "127.0.0.1:8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "root"
+      VAULT_DEV_LISTEN_ADDRESS: "127.0.0.1:8200"
+    cap_add:
+      - IPC_LOCK
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
