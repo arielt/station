@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Google Sheet reader</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="top">
+      <h1>Google Sheet reader</h1>
+      <p>Paste a sheet URL, then load it. The sheet must be shared as “Anyone with the link can view”.</p>
+    </header>
+
+    <main>
+      <form id="sheet-form" class="panel">
+        <label for="sheet-url">Google Sheet URL</label>
+        <div class="row">
+          <input
+            id="sheet-url"
+            name="url"
+            type="url"
+            required
+            spellcheck="false"
+            placeholder="https://docs.google.com/spreadsheets/d/…"
+            autocomplete="off"
+          />
+          <button type="submit" id="load-button">Load sheet</button>
+        </div>
+      </form>
+
+      <p id="status" class="status" hidden></p>
+      <div id="table-wrap" class="table-wrap" hidden></div>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

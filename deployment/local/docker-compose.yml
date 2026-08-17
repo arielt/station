@@ -6,6 +6,8 @@ services:
       dockerfile: deployment/docker/Dockerfile.app
     ports:
       - "127.0.0.1:8888:80"
+    environment:
+      PORT: "80"
     networks:
       - internal
 
