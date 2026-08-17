@@ -1,0 +1,1 @@
+npx standard --fix $1
