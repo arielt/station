@@ -8,6 +8,24 @@ services:
       - "127.0.0.1:8888:80"
     environment:
       PORT: "80"
+    volumes:
+      - app-secrets:/run/secrets:ro
+    networks:
+      - internal
+
+  vault-agent-app:
+    image: openbao/openbao:latest
+    container_name: vault-agent-app
+    depends_on:
+      - vault
+    environment:
+      VAULT_ADDR: "http://vault:8200"
+      VAULT_DEV_ROOT_TOKEN_ID: "root"
+    volumes:
+      - app-secrets:/run/secrets
+      - ./openbao-agent.hcl:/openbao/config/agent.hcl:ro
+      - ./run-openbao-agent.sh:/openbao/config/run-openbao-agent.sh:ro
+    entrypoint: ["/bin/sh", "/openbao/config/run-openbao-agent.sh"]
     networks:
       - internal
 
@@ -18,11 +36,21 @@ services:
       - "127.0.0.1:8200:8200"
     environment:
       VAULT_DEV_ROOT_TOKEN_ID: "root"
-      VAULT_DEV_LISTEN_ADDRESS: "127.0.0.1:8200"
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+      BAO_DEV_ROOT_TOKEN_ID: "root"
+      BAO_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
     cap_add:
       - IPC_LOCK
     networks:
       - internal
+
+volumes:
+  app-secrets:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: size=16m,mode=0777
 
 networks:
   internal:

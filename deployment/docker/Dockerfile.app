@@ -15,4 +15,4 @@ COPY projects/google-sheet-demo/package*.json ./
 COPY projects/google-sheet-demo/ .
 COPY deployment/docker/run-app.sh ./deployment/docker/run-app.sh
 
-CMD [ "./deployment/docker/run-app.sh" ]
+CMD [ "sh", "./deployment/docker/run-app.sh" ]
