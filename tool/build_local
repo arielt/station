@@ -1,4 +1,8 @@
+# usage: tool/build_local [project]
+PROJECT="${1:-google-sheet-demo}"
+export PROJECT
+
 docker compose -f deployment/local/docker-compose.yml stop
 docker compose -f deployment/local/docker-compose.yml pull
-docker compose -f deployment/local/docker-compose.yml build
+docker compose -f deployment/local/docker-compose.yml build --build-arg PROJECT="$PROJECT"
 docker compose -f deployment/local/docker-compose.yml up --detach

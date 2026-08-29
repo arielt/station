@@ -4,6 +4,8 @@ services:
     build:
       context: ../..
       dockerfile: deployment/docker/Dockerfile.app
+      args:
+        PROJECT: ${PROJECT}
     ports:
       - "127.0.0.1:8888:80"
     environment:
