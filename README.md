@@ -2,12 +2,9 @@
 
 ## Local deployment
 ```
-tool/build_local
-
-# or
-
-docker compose -f deployment/local/docker-compose.yml stop
-docker compose -f deployment/local/docker-compose.yml pull
-docker compose -f deployment/local/docker-compose.yml build
-docker compose -f deployment/local/docker-compose.yml up --detach
+tool/deploy_local google-sheet-demo
 ```
+
+Check:
+  - Vault: http://127.0.0.1:8200
+  - App: http://127.0.0.1:8888
