@@ -19,7 +19,7 @@ services:
     image: postgres:18
     restart: unless-stopped
     depends_on:
-      vault-agent-app:
+      vault-agent:
         condition: service_started
     environment:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_passwd
@@ -36,9 +36,9 @@ services:
     ports:
       - "127.0.0.1:5432:5432"
 
-  vault-agent-app:
+  vault-agent:
     image: openbao/openbao:latest
-    container_name: vault-agent-app
+    container_name: vault-agent
     depends_on:
       vault:
         condition: service_healthy

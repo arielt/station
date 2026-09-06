@@ -14,3 +14,4 @@ Configure secrets in the vault (http://127.0.0.1:8200):
 
 Check:
   - App: http://127.0.0.1:8888
+  - DB: 127.0.0.1:5432
