@@ -15,6 +15,27 @@ services:
     networks:
       - internal
 
+  db:
+    image: postgres:18
+    restart: unless-stopped
+    depends_on:
+      vault-agent-app:
+        condition: service_started
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_passwd
+    volumes:
+      - ./volumes/data:/var/lib/postgresql
+      - db-secrets:/run/secrets:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-file: 5
+        max-size: 10m
+    networks:
+      - internal
+    ports:
+      - "127.0.0.1:5432:5432"
+
   vault-agent-app:
     image: openbao/openbao:latest
     container_name: vault-agent-app
@@ -26,6 +47,7 @@ services:
       VAULT_DEV_ROOT_TOKEN_ID: "root"
     volumes:
       - app-secrets:/run/secrets
+      - db-secrets:/run/db-secrets
       - ./openbao-agent.hcl:/openbao/config/agent.hcl:ro
       - ./run-openbao-agent.sh:/openbao/config/run-openbao-agent.sh:ro
     entrypoint: ["/bin/sh", "/openbao/config/run-openbao-agent.sh"]
@@ -60,6 +82,12 @@ services:
 volumes:
   vault-data:
   app-secrets:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: size=16m,mode=0777
+  db-secrets:
     driver: local
     driver_opts:
       type: tmpfs
