@@ -1,5 +1,8 @@
 :root {
   --ink: #1c1917;
+  --muted: #57534e;
+  --line: #d6d3d1;
+  --bar: #f5f5f4;
 }
 
 * {
@@ -9,12 +12,44 @@
 body {
   margin: 0;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   font: 16px/1.45 "Segoe UI", system-ui, sans-serif;
   color: var(--ink);
   background: #fff;
 }
 
+.statusbar {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--bar);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.statusbar-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: #a8a29e;
+  flex-shrink: 0;
+}
+
+.statusbar-dot[data-state="authenticated"] {
+  background: #15803d;
+}
+
+.statusbar-dot[data-state="denied"],
+.statusbar-dot[data-state="missing_credentials"],
+.statusbar-dot[data-state="unreachable"] {
+  background: #b91c1c;
+}
+
 .top {
+  flex: 1;
   padding: 2.5rem 1.25rem 1rem;
   text-align: center;
 }
@@ -23,4 +58,14 @@ h1 {
   margin: 0;
   font-size: 1.6rem;
   font-weight: 650;
+}
+
+.footer {
+  margin-top: auto;
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--line);
+  background: var(--bar);
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
 }

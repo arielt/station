@@ -7,8 +7,19 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
+    <div class="statusbar" role="status" aria-live="polite">
+      <span class="statusbar-dot" data-state="checking" aria-hidden="true"></span>
+      <span id="vault-status">Vault: checking authentication…</span>
+    </div>
+
     <header class="top">
       <h1>Connector</h1>
     </header>
+
+    <footer class="footer">
+      Connector
+    </footer>
+
+    <script src="/app.js"></script>
   </body>
 </html>
