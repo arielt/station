@@ -1,8 +1,32 @@
-# usage: tools/deploy [project]
-PROJECT="${1:-google-sheet-demo}"
+# usage: tools/deploy [--app] [project]
+APP_ONLY=0
+PROJECT=""
+for arg in "$@"; do
+  case "$arg" in
+    --app|-app)
+      APP_ONLY=1
+      ;;
+    -*)
+      echo "unknown flag: $arg" >&2
+      exit 1
+      ;;
+    *)
+      PROJECT="$arg"
+      ;;
+  esac
+done
+PROJECT="${PROJECT:-google-sheet-demo}"
 export PROJECT
 
-docker compose -f deployments/dev/docker-compose.yml stop
-docker compose -f deployments/dev/docker-compose.yml pull
-docker compose -f deployments/dev/docker-compose.yml build --build-arg PROJECT="$PROJECT"
-docker compose -f deployments/dev/docker-compose.yml up --detach
+COMPOSE="docker compose -f deployments/dev/docker-compose.yml"
+
+if [ "$APP_ONLY" = 1 ]; then
+  $COMPOSE build --build-arg PROJECT="$PROJECT" app
+  $COMPOSE up --detach --no-deps --force-recreate app
+  exit 0
+fi
+
+$COMPOSE stop
+$COMPOSE pull
+$COMPOSE build --build-arg PROJECT="$PROJECT"
+$COMPOSE up --detach
