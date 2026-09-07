@@ -1,0 +1,6 @@
+name: chase
+description: "Chase Connector"
+
+credentials:
+  user: true
+  password: true

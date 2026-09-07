@@ -33,3 +33,22 @@ async function refreshVaultStatus () {
 
 refreshVaultStatus()
 setInterval(refreshVaultStatus, 10000)
+
+async function loadConnectors () {
+  const list = document.getElementById('connector-list')
+  try {
+    const response = await fetch('/api/connectors')
+    const data = await response.json()
+    for (const connector of data.connectors || []) {
+      const row = document.createElement('tr')
+      const cell = document.createElement('td')
+      cell.textContent = connector.description
+      row.append(cell)
+      list.append(row)
+    }
+  } catch {
+    list.replaceChildren()
+  }
+}
+
+loadConnectors()

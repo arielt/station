@@ -1,0 +1,6 @@
+name: wf
+description: "Wells Fargo Connector"
+
+credentials:
+  user: true
+  password: true
