@@ -1,4 +1,4 @@
-# usage: tool/build_local [project]
+# usage: tools/deploy_local [project]
 PROJECT="${1:-google-sheet-demo}"
 export PROJECT
 
