@@ -1,6 +1,9 @@
 services:
   app:
     container_name: app
+    depends_on:
+      vault-agent:
+        condition: service_started
     build:
       context: ../..
       dockerfile: deployments/docker/Dockerfile.app
