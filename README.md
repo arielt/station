@@ -1,10 +1,10 @@
 # Station
 
-## Local deployment
+## Dev deployment
 
-Deploy local station:
+Deploy the station:
 ```
-tools/deploy_local google-sheet-demo
+tools/deploy google-sheet-demo
 ```
 
 Configure platform secrets in the vault (http://127.0.0.1:8200). Those will be mounted on tmpfs /run/secrets volumes of respective containers.

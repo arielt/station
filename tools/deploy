@@ -1,0 +1,8 @@
+# usage: tools/deploy [project]
+PROJECT="${1:-google-sheet-demo}"
+export PROJECT
+
+docker compose -f deployments/dev/docker-compose.yml stop
+docker compose -f deployments/dev/docker-compose.yml pull
+docker compose -f deployments/dev/docker-compose.yml build --build-arg PROJECT="$PROJECT"
+docker compose -f deployments/dev/docker-compose.yml up --detach
