@@ -7,10 +7,10 @@ Deploy local station:
 tool/deploy_local google-sheet-demo
 ```
 
-Configure secrets in the vault (http://127.0.0.1:8200):
+Configure platform secrets in the vault (http://127.0.0.1:8200). Those will be mounted on tmpfs /run/secrets volumes of respective containers.
 
-  - Postgres password: secret/sys/db/postgres_passwd
-  - App secrets: secret/sys/app/...
+  - Postgres password: secret/platform/db/postgres_passwd
+  - App platform secrets: secret/platform/app/...
 
 Check:
   - App: http://127.0.0.1:8888
