@@ -1,6 +1,8 @@
 #!/bin/sh
 set -eu
 
+echo "*** Executing run-vault.sh"
+
 export VAULT_ADDR="${VAULT_ADDR:-http://127.0.0.1:8200}"
 
 DATA_DIR=/openbao/file
@@ -67,19 +69,10 @@ if [ -f "$INIT_ROOT_TOKEN_FILE" ]; then
   fi
 
   role_id=$(VAULT_TOKEN="$token" bao read -field=role_id auth/approle/role/app/role-id)
-  secret_id_file="${DATA_DIR}/app-approle-secret-id"
-  if [ ! -s "$secret_id_file" ]; then
-    VAULT_TOKEN="$token" bao write -f -field=secret_id auth/approle/role/app/secret-id > "$secret_id_file"
-    chmod 600 "$secret_id_file"
-    chown openbao:openbao "$secret_id_file"
-  fi
-  secret_id=$(cat "$secret_id_file")
-
-  if VAULT_TOKEN="$token" bao kv get secret/platform/app >/dev/null 2>&1; then
-    VAULT_TOKEN="$token" bao kv patch secret/platform/app \
-      approle_role_id="$role_id" \
-      approle_secret_id="$secret_id"
-  else
+  secret_id=$(VAULT_TOKEN="$token" bao write -f -field=secret_id auth/approle/role/app/secret-id)
+  if ! VAULT_TOKEN="$token" bao kv patch secret/platform/app \
+    approle_role_id="$role_id" \
+    approle_secret_id="$secret_id"; then
     VAULT_TOKEN="$token" bao kv put secret/platform/app \
       approle_role_id="$role_id" \
       approle_secret_id="$secret_id"
