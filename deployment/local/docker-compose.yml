@@ -16,6 +16,7 @@ services:
       - internal
 
   db:
+    container_name: db
     image: postgres:18
     restart: unless-stopped
     depends_on:
