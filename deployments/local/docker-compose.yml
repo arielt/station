@@ -3,7 +3,7 @@ services:
     container_name: app
     build:
       context: ../..
-      dockerfile: deployment/docker/Dockerfile.app
+      dockerfile: deployments/docker/Dockerfile.app
       args:
         PROJECT: ${PROJECT}
     ports:

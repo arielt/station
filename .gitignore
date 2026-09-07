@@ -1,4 +1,4 @@
 .DS_Store
 
 # volumes
-deployment/local/volumes
+deployments/local/volumes

@@ -15,6 +15,6 @@ COPY projects/${PROJECT}/package*.json ./
 
 # Bundle app source
 COPY projects/${PROJECT}/ .
-COPY deployment/docker/run-app.sh ./deployment/docker/run-app.sh
+COPY deployments/docker/run-app.sh ./deployments/docker/run-app.sh
 
-CMD [ "sh", "./deployment/docker/run-app.sh" ]
+CMD [ "sh", "./deployments/docker/run-app.sh" ]
