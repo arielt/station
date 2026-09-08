@@ -117,6 +117,68 @@ body {
   cursor: pointer;
 }
 
+dialog {
+  width: min(24rem, calc(100vw - 2rem));
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+}
+
+dialog::backdrop {
+  background: rgb(0 0 0 / 0.35);
+}
+
+.dialog-form {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.dialog-form h2 {
+  margin: 0;
+  text-align: left;
+}
+
+.dialog-form label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.dialog-form input,
+.dialog-form select {
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font: inherit;
+  font-weight: 400;
+}
+
+.dialog-error {
+  margin: 0;
+  color: #b91c1c;
+  font-size: 0.85rem;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.dialog-actions button {
+  padding: 0.3rem 0.75rem;
+  border: 1px solid #2563eb;
+  border-radius: 6px;
+  background: #2563eb;
+  color: #fff;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
 h1 {
   margin: 0;
   font-size: 1.6rem;

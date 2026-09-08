@@ -58,15 +58,22 @@ if [ -f "$INIT_ROOT_TOKEN_FILE" ]; then
   if ! VAULT_TOKEN="$token" bao auth list -format=json 2>/dev/null | grep -q '"approle/"'; then
     VAULT_TOKEN="$token" bao auth enable approle
   fi
-  if ! VAULT_TOKEN="$token" bao read auth/approle/role/app >/dev/null 2>&1; then
-    VAULT_TOKEN="$token" bao write auth/approle/role/app \
-      token_ttl=1h \
-      token_max_ttl=24h \
-      token_num_uses=0 \
-      secret_id_ttl=0 \
-      secret_id_num_uses=0 \
-      token_policies=default
-  fi
+  cat > /tmp/app-policy.hcl <<'EOF'
+path "secret/data/approles/app" {
+  capabilities = ["create", "update", "read", "patch"]
+}
+path "secret/metadata/approles/app" {
+  capabilities = ["read"]
+}
+EOF
+  VAULT_TOKEN="$token" bao policy write app /tmp/app-policy.hcl
+  VAULT_TOKEN="$token" bao write auth/approle/role/app \
+    token_ttl=1h \
+    token_max_ttl=24h \
+    token_num_uses=0 \
+    secret_id_ttl=0 \
+    secret_id_num_uses=0 \
+    token_policies=default,app
 
   role_id=$(VAULT_TOKEN="$token" bao read -field=role_id auth/approle/role/app/role-id)
   secret_id=$(VAULT_TOKEN="$token" bao write -f -field=secret_id auth/approle/role/app/secret-id)

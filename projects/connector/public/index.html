@@ -24,7 +24,7 @@
       <section class="top">
         <h2>Hub</h2>
         <div class="toolbar">
-          <button type="button">Add</button>
+          <button type="button" id="add-button">Add</button>
         </div>
         <div class="sheet">
           <table>
@@ -36,7 +36,7 @@
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody></tbody>
+            <tbody id="hub-list"></tbody>
           </table>
         </div>
       </section>
@@ -45,6 +45,32 @@
     <footer class="footer">
       Connector
     </footer>
+
+    <dialog id="add-dialog">
+      <form id="add-form" class="dialog-form">
+        <h2>Add</h2>
+        <label>
+          Connector
+          <select id="add-connector"></select>
+        </label>
+        <label>
+          Name
+          <input id="add-name" name="name" required autocomplete="off" />
+        </label>
+        <label id="add-user-row" hidden>
+          User
+          <input id="add-user" name="user" autocomplete="off" />
+        </label>
+        <label id="add-password-row" hidden>
+          Password
+          <input id="add-password" name="password" type="password" autocomplete="new-password" />
+        </label>
+        <p id="add-error" class="dialog-error" hidden></p>
+        <div class="dialog-actions">
+          <button type="submit">OK</button>
+        </div>
+      </form>
+    </dialog>
 
     <script src="/app.js"></script>
   </body>
