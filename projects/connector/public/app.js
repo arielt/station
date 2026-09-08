@@ -10,6 +10,9 @@ const addPasswordRow = document.getElementById('add-password-row')
 const addUser = document.getElementById('add-user')
 const addPassword = document.getElementById('add-password')
 const addError = document.getElementById('add-error')
+const resultDialog = document.getElementById('result-dialog')
+const resultJson = document.getElementById('result-json')
+const resultDialogClose = document.getElementById('result-dialog-close')
 
 let connectors = []
 
@@ -111,16 +114,113 @@ async function loadHubEntries () {
     const data = await response.json()
     list.replaceChildren()
     for (const entry of data.entries || []) {
-      const row = document.createElement('tr')
-      const name = document.createElement('td')
-      name.textContent = entry.name
-      row.append(name, document.createElement('td'), document.createElement('td'), document.createElement('td'))
-      list.append(row)
+      list.append(hubRow(entry))
     }
   } catch {
     list.replaceChildren()
   }
 }
+
+function hubRow (entry) {
+  const row = document.createElement('tr')
+  const name = document.createElement('td')
+  name.textContent = entry.name
+  const last = document.createElement('td')
+  last.className = 'last-connection'
+  last.textContent = entry.ts || ''
+  const result = document.createElement('td')
+  const actions = document.createElement('td')
+  const getButton = document.createElement('button')
+  getButton.type = 'button'
+  getButton.className = 'row-action'
+  getButton.textContent = 'Get'
+  getButton.addEventListener('click', () => runHubGet(entry.name, last, result, getButton))
+  actions.append(getButton)
+  row.append(name, last, result, actions)
+  fillResultCell(result, entry.result)
+  return row
+}
+
+function jsonText (value) {
+  if (value === null || value === undefined || value === '') {
+    return ''
+  }
+  if (typeof value === 'string') {
+    return value
+  }
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return String(value)
+  }
+}
+
+function truncateJson (value, max = 48) {
+  const text = jsonText(value)
+  if (text.length <= max) {
+    return text
+  }
+  return `${text.slice(0, max - 1)}…`
+}
+
+function fillResultCell (cell, result) {
+  cell.replaceChildren()
+  const text = jsonText(result)
+  if (!text) {
+    return
+  }
+
+  const wrap = document.createElement('div')
+  wrap.className = 'result-cell'
+  const preview = document.createElement('code')
+  preview.className = 'result-preview'
+  preview.textContent = truncateJson(result)
+  preview.title = text
+  const viewButton = document.createElement('button')
+  viewButton.type = 'button'
+  viewButton.className = 'row-action'
+  viewButton.textContent = '...'
+  viewButton.addEventListener('click', () => showResultDialog(result))
+  wrap.append(preview, viewButton)
+  cell.append(wrap)
+}
+
+function showResultDialog (result) {
+  try {
+    resultJson.textContent = typeof result === 'string'
+      ? result
+      : JSON.stringify(result, null, 2)
+  } catch {
+    resultJson.textContent = String(result)
+  }
+  resultDialog.showModal()
+}
+
+async function runHubGet (name, lastCell, resultCell, button) {
+  button.disabled = true
+  try {
+    const response = await fetch('/api/hub-entries/get', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    })
+    const data = await response.json().catch(() => ({}))
+    if (!response.ok) {
+      throw new Error(data.error || 'Get failed.')
+    }
+    lastCell.textContent = data.ts || ''
+    fillResultCell(resultCell, data.result)
+  } catch (err) {
+    fillResultCell(resultCell, null)
+    resultCell.textContent = err instanceof Error ? err.message : 'Get failed.'
+  } finally {
+    button.disabled = false
+  }
+}
+
+resultDialogClose.addEventListener('click', () => {
+  resultDialog.close()
+})
 
 addButton.addEventListener('click', () => {
   setAddError('')
@@ -142,6 +242,9 @@ addForm.addEventListener('submit', async (event) => {
   }
 
   const payload = { name }
+  if (connector?.id) {
+    payload.connector = connector.id
+  }
   if (connector?.user) {
     payload.user = addUser.value
   }

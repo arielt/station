@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 function unquote (value) {
   const trimmed = value.trim()
@@ -65,4 +66,30 @@ export async function listConnectors (dir) {
     })
   }
   return connectors
+}
+
+const connectorIdPattern = /^[A-Za-z0-9_-]+$/
+
+export async function callConnectorGet (dir, id) {
+  if (!id || !connectorIdPattern.test(id)) {
+    throw new Error('Connector handler is not available.')
+  }
+
+  const root = path.resolve(dir)
+  const file = path.resolve(root, `${id}.js`)
+  if (!file.startsWith(root + path.sep)) {
+    throw new Error('Connector handler is not available.')
+  }
+
+  try {
+    await fs.access(file)
+  } catch {
+    throw new Error('Connector handler is not available.')
+  }
+
+  const mod = await import(pathToFileURL(file).href)
+  if (typeof mod.get !== 'function') {
+    throw new Error('Connector has no get handler.')
+  }
+  return Promise.resolve(mod.get())
 }

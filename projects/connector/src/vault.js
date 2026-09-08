@@ -89,10 +89,58 @@ async function readHubEntries (token) {
     : {}
 }
 
+function parseHubFields (value) {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    return { ...value }
+  }
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value)
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return parsed
+      }
+    } catch {
+      return {}
+    }
+  }
+  return {}
+}
+
+function hubTs (value) {
+  if (typeof value === 'string' && value) {
+    return value
+  }
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return new Date(value).toISOString()
+  }
+  return ''
+}
+
 export async function listHubEntries () {
   const { token } = await loginWithAppRole()
   const entries = await readHubEntries(token)
-  return Object.keys(entries).sort((a, b) => a.localeCompare(b))
+  return Object.keys(entries)
+    .sort((a, b) => a.localeCompare(b))
+    .map((name) => {
+      const fields = parseHubFields(entries[name])
+      return {
+        name,
+        ts: hubTs(fields.ts),
+        connector: typeof fields.connector === 'string' ? fields.connector : '',
+        result: fields.result ?? null
+      }
+    })
+}
+
+export async function getHubEntry (name) {
+  const { token } = await loginWithAppRole()
+  const entries = await readHubEntries(token)
+  if (!Object.hasOwn(entries, name)) {
+    const err = new Error('Hub entry not found.')
+    err.code = 404
+    throw err
+  }
+  return parseHubFields(entries[name])
 }
 
 export async function writeHubEntry (name, fields) {
@@ -100,7 +148,7 @@ export async function writeHubEntry (name, fields) {
   const existing = await readHubEntries(token)
   const next = {
     ...existing,
-    [name]: JSON.stringify(fields)
+    [name]: fields
   }
 
   const response = await fetch(`${vaultAddr}/v1/${hubSecretPath}`, {

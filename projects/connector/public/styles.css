@@ -94,6 +94,20 @@ body {
   border-bottom: 0;
 }
 
+.top .sheet th,
+.top .sheet td {
+  border-right: 1px solid var(--line);
+}
+
+.top .sheet th {
+  text-align: center;
+}
+
+.top .sheet th:last-child,
+.top .sheet td:last-child {
+  border-right: 0;
+}
+
 .top {
   flex: 1;
   padding: 1rem 1.25rem;
@@ -103,6 +117,23 @@ body {
   display: flex;
   justify-content: flex-end;
   margin: 0 0 0.55rem;
+}
+
+.row-action {
+  padding: 0.15rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.row-action:disabled {
+  opacity: 0.65;
+  cursor: wait;
 }
 
 .toolbar button {
@@ -117,6 +148,37 @@ body {
   cursor: pointer;
 }
 
+.result-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.result-preview {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+}
+
+.result-json {
+  margin: 0.35rem 0 0.75rem;
+  max-height: 50vh;
+  overflow: auto;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bar);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 dialog {
   width: min(24rem, calc(100vw - 2rem));
   padding: 1.1rem 1.2rem;
@@ -126,7 +188,15 @@ dialog {
   color: var(--ink);
 }
 
-dialog::backdrop {
+dialog.result-dialog {
+  width: min(36rem, calc(100vw - 2rem));
+}
+
+dialog h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 650;
+}
   background: rgb(0 0 0 / 0.35);
 }
 
