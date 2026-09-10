@@ -70,7 +70,11 @@ app.post('/api/hub-entries/get', async (req, res) => {
     const fields = await getHubEntry(name)
     const connectors = await listConnectors(connectorsDir)
     const connectorId = resolveConnectorId(name, fields, connectors)
-    const result = await callConnectorGet(connectorsDir, connectorId)
+    const params = { ...fields }
+    delete params.connector
+    delete params.ts
+    delete params.result
+    const result = await callConnectorGet(connectorsDir, connectorId, params)
     const ts = asTimestamp(result?.ts)
     if (!ts) {
       res.status(502).json({ error: 'Get handler did not return a timestamp.' })

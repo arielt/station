@@ -70,7 +70,7 @@ export async function listConnectors (dir) {
 
 const connectorIdPattern = /^[A-Za-z0-9_-]+$/
 
-export async function callConnectorGet (dir, id) {
+export async function callConnectorGet (dir, id, params = {}) {
   if (!id || !connectorIdPattern.test(id)) {
     throw new Error('Connector handler is not available.')
   }
@@ -91,5 +91,5 @@ export async function callConnectorGet (dir, id) {
   if (typeof mod.get !== 'function') {
     throw new Error('Connector has no get handler.')
   }
-  return Promise.resolve(mod.get())
+  return Promise.resolve(mod.get(params || {}))
 }

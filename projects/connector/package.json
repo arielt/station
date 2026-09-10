@@ -6,6 +6,7 @@
   "scripts": {
     "http": "node src/server.js",
     "start": "node src/server.js",
+    "test": "node --test src/connectors/*.test.js",
     "create": "node -e \"process.exit(0)\"",
     "migrate": "node -e \"process.exit(0)\""
   },
