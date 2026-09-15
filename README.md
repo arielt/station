@@ -15,3 +15,7 @@ Configure platform secrets in the vault (http://127.0.0.1:8200). Those will be m
 Check:
   - App: http://127.0.0.1:8888
   - DB: 127.0.0.1:5432
+
+
+## TODO
+  - Add an environment support with STATION_ENV: development, production, test

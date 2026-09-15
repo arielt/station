@@ -18,13 +18,13 @@ template_config {
   exit_on_retry_failure         = false
 }
 
-# Render each key in secret/platform/app as /run/secrets/<key> (Docker secrets layout).
+# Render each key in secret/platform/app as /run/secrets/<key>
 template {
   destination = "/tmp/.app-secrets-rendered"
   contents    = "{{ with secret \"secret/data/platform/app\" }}{{ range $k, $v := .Data.data }}{{ $v | writeToFile (printf \"/run/secrets/%s\" $k) \"\" \"\" \"0644\" }}{{ end }}{{ end }}"
 }
 
-# Render each key in secret/platform/db as /run/db-secrets/<key> (tmpfs shared with db only).
+# Render each key in secret/platform/db as /run/db-secrets/<key>
 template {
   destination = "/tmp/.db-secrets-rendered"
   contents    = "{{ with secret \"secret/data/platform/db\" }}{{ range $k, $v := .Data.data }}{{ $v | writeToFile (printf \"/run/db-secrets/%s\" $k) \"\" \"\" \"0644\" }}{{ end }}{{ end }}"
