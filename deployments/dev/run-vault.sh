@@ -65,6 +65,12 @@ path "secret/data/approles/app" {
 path "secret/metadata/approles/app" {
   capabilities = ["read"]
 }
+path "secret/data/platform/db" {
+  capabilities = ["read"]
+}
+path "secret/data/platform/app" {
+  capabilities = ["read"]
+}
 EOF
   VAULT_TOKEN="$token" bao policy write app /tmp/app-policy.hcl
   VAULT_TOKEN="$token" bao write auth/approle/role/app \
