@@ -48,7 +48,8 @@ async function upsertUser (fields) {
          email = COALESCE($2, email),
          name = COALESCE($3, name),
          google_id = COALESCE($4, google_id),
-         github_id = COALESCE($5, github_id)
+         github_id = COALESCE($5, github_id),
+         updated_at = now()
        WHERE id = $1`,
       [row.id, email, fields.name || null, fields.googleId || null, fields.githubId || null]
     )

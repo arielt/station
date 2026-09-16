@@ -9,7 +9,12 @@ await pool.query(`
     google_id text UNIQUE,
     github_id text UNIQUE,
     name text,
-    created_at timestamptz NOT NULL DEFAULT now()
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now()
   )
+`)
+await pool.query(`
+  ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now()
 `)
 await pool.end()
