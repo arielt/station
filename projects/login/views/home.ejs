@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Station</title>
+    <link rel="stylesheet" href="/home.css" />
+  </head>
+  <body class="home" data-first-login="<%= firstLogin ? 'true' : 'false' %>">
+    <div class="shell">
+    <aside class="nav" aria-label="Primary">
+      <a class="wordmark" href="/">Station</a>
+      <nav>
+        <a class="nav-item is-active" href="/"><span class="nav-icon" data-icon="home"></span><span>Home</span></a>
+        <a class="nav-item" href="#"><span class="nav-icon" data-icon="search"></span><span>Search</span></a>
+        <a class="nav-item" href="#"><span class="nav-icon" data-icon="explore"></span><span>Explore</span></a>
+        <a class="nav-item" href="#"><span class="nav-icon" data-icon="reels"></span><span>Reels</span></a>
+        <a class="nav-item" href="#"><span class="nav-icon" data-icon="messages"></span><span>Messages</span></a>
+        <a class="nav-item" href="#"><span class="nav-icon" data-icon="heart"></span><span>Notifications</span></a>
+        <a class="nav-item" href="#"><span class="nav-icon" data-icon="create"></span><span>Create</span></a>
+        <a class="nav-item" href="#"><span class="avatar avatar-sm" data-user-avatar><%= initials %></span><span>Profile</span></a>
+      </nav>
+      <div class="nav-more">
+        <button class="nav-item more-toggle" type="button" aria-expanded="false" aria-controls="more-menu">
+          <span class="nav-icon" data-icon="more"></span><span>More</span>
+        </button>
+        <div id="more-menu" class="more-menu" hidden>
+          <a href="/logout">Log out</a>
+        </div>
+      </div>
+    </aside>
+
+    <main class="feed">
+      <section class="stories" aria-label="Stories">
+        <button class="story" type="button"><span class="avatar" style="--hue: 12">AN</span><span>anika</span></button>
+        <button class="story" type="button"><span class="avatar" style="--hue: 198">JL</span><span>jules</span></button>
+        <button class="story" type="button"><span class="avatar" style="--hue: 42">MK</span><span>mina</span></button>
+        <button class="story" type="button"><span class="avatar" style="--hue: 280">RS</span><span>rio</span></button>
+        <button class="story" type="button"><span class="avatar" style="--hue: 150">KP</span><span>kai</span></button>
+        <button class="story" type="button"><span class="avatar" style="--hue: 330">SL</span><span>sasha</span></button>
+        <button class="story" type="button"><span class="avatar" style="--hue: 88">NV</span><span>nova</span></button>
+        <button class="story" type="button"><span class="avatar" style="--hue: 210">EL</span><span>eli</span></button>
+      </section>
+
+      <article class="post">
+        <header class="post-head">
+          <span class="avatar avatar-sm" style="--hue: 12">AN</span>
+          <div>
+            <strong>anika.studio</strong>
+            <span class="muted"> · 2h</span>
+          </div>
+          <button class="icon-btn" type="button" aria-label="More options">•••</button>
+        </header>
+        <div class="post-media" style="--a: #f9ce34; --b: #ee2a7b; --c: #6228d7"></div>
+        <div class="post-actions">
+          <button class="icon-btn like" type="button" aria-label="Like"></button>
+          <button class="icon-btn" type="button" aria-label="Comment" data-icon="comment"></button>
+          <button class="icon-btn" type="button" aria-label="Share" data-icon="share"></button>
+          <button class="icon-btn save" type="button" aria-label="Save" data-icon="save"></button>
+        </div>
+        <p class="likes">Liked by <strong>jules</strong> and <strong>218 others</strong></p>
+        <p class="caption"><strong>anika.studio</strong> Golden hour on the terrace. Demo feed for Station.</p>
+        <p class="muted comments-link">View all 24 comments</p>
+        <form class="add-comment"><input type="text" placeholder="Add a comment…" /></form>
+      </article>
+
+      <article class="post">
+        <header class="post-head">
+          <span class="avatar avatar-sm" style="--hue: 198">JL</span>
+          <div>
+            <strong>jules.travels</strong>
+            <span class="muted"> · 5h</span>
+          </div>
+          <button class="icon-btn" type="button" aria-label="More options">•••</button>
+        </header>
+        <div class="post-media" style="--a: #0ea5e9; --b: #22c55e; --c: #f59e0b"></div>
+        <div class="post-actions">
+          <button class="icon-btn like" type="button" aria-label="Like"></button>
+          <button class="icon-btn" type="button" aria-label="Comment" data-icon="comment"></button>
+          <button class="icon-btn" type="button" aria-label="Share" data-icon="share"></button>
+          <button class="icon-btn save" type="button" aria-label="Save" data-icon="save"></button>
+        </div>
+        <p class="likes">Liked by <strong>mina</strong> and <strong>1,024 others</strong></p>
+        <p class="caption"><strong>jules.travels</strong> Coast road, windows down.</p>
+        <p class="muted comments-link">View all 61 comments</p>
+        <form class="add-comment"><input type="text" placeholder="Add a comment…" /></form>
+      </article>
+
+      <article class="post">
+        <header class="post-head">
+          <span class="avatar avatar-sm" style="--hue: 42">MK</span>
+          <div>
+            <strong>mina.kitchen</strong>
+            <span class="muted"> · 1d</span>
+          </div>
+          <button class="icon-btn" type="button" aria-label="More options">•••</button>
+        </header>
+        <div class="post-media" style="--a: #fb7185; --b: #f97316; --c: #facc15"></div>
+        <div class="post-actions">
+          <button class="icon-btn like" type="button" aria-label="Like"></button>
+          <button class="icon-btn" type="button" aria-label="Comment" data-icon="comment"></button>
+          <button class="icon-btn" type="button" aria-label="Share" data-icon="share"></button>
+          <button class="icon-btn save" type="button" aria-label="Save" data-icon="save"></button>
+        </div>
+        <p class="likes">Liked by <strong>kai</strong> and <strong>640 others</strong></p>
+        <p class="caption"><strong>mina.kitchen</strong> Saturday sourdough, finally.</p>
+        <p class="muted comments-link">View all 18 comments</p>
+        <form class="add-comment"><input type="text" placeholder="Add a comment…" /></form>
+      </article>
+    </main>
+
+    <aside class="rail" aria-label="Suggestions">
+      <div class="you">
+        <span class="avatar" data-user-avatar style="--hue: 262"><%= initials %></span>
+        <div>
+          <strong data-user-handle><%= handle %></strong>
+          <p class="muted" data-user-name><%= name || handle %></p>
+        </div>
+        <a class="switch" href="/logout">Switch</a>
+      </div>
+      <div class="suggest-head">
+        <span>Suggested for you</span>
+        <a href="#">See All</a>
+      </div>
+      <ul class="suggest-list">
+        <li><span class="avatar avatar-sm" style="--hue: 16">OR</span><div><strong>orbit.lab</strong><p class="muted">Followed by anika</p></div><button type="button">Follow</button></li>
+        <li><span class="avatar avatar-sm" style="--hue: 200">NW</span><div><strong>northwind</strong><p class="muted">Suggested for you</p></div><button type="button">Follow</button></li>
+        <li><span class="avatar avatar-sm" style="--hue: 310">LM</span><div><strong>lumen.film</strong><p class="muted">Followed by jules</p></div><button type="button">Follow</button></li>
+        <li><span class="avatar avatar-sm" style="--hue: 95">PT</span><div><strong>pine.trail</strong><p class="muted">Suggested for you</p></div><button type="button">Follow</button></li>
+        <li><span class="avatar avatar-sm" style="--hue: 250">HB</span><div><strong>harbor.bikes</strong><p class="muted">Followed by mina</p></div><button type="button">Follow</button></li>
+      </ul>
+      <p class="legal-links">About · Help · Press · API · Privacy · Terms</p>
+    </aside>
+    </div>
+
+    <nav class="bottom-nav" aria-label="Mobile">
+      <a href="/" class="is-active" data-icon="home" aria-label="Home"></a>
+      <a href="#" data-icon="explore" aria-label="Explore"></a>
+      <a href="#" data-icon="reels" aria-label="Reels"></a>
+      <a href="#" data-icon="create" aria-label="Create"></a>
+      <a href="#" aria-label="Profile"><span class="avatar avatar-xs" data-user-avatar><%= initials %></span></a>
+    </nav>
+
+    <div id="ftue" class="overlay"<% if (!firstLogin) { %> hidden<% } %>>
+      <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="ftue-title">
+        <h1 id="ftue-title">First Time User Experience</h1>
+        <p class="muted">Welcome in. This is a demo home feed — stories, posts, and suggestions, Instagram-style.</p>
+        <button class="btn btn-primary" id="ftue-continue" type="button">Continue</button>
+      </section>
+    </div>
+
+    <script src="/home.js"></script>
+  </body>
+</html>

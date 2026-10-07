@@ -10,6 +10,8 @@ const publicDir = path.join(__dirname, '../public')
 const port = Number(process.env.PORT || 80)
 const app = express()
 
+app.set('views', path.join(__dirname, '../views'))
+app.set('view engine', 'ejs')
 app.use(express.urlencoded({ extended: false, limit: '32kb' }))
 app.use(express.static(publicDir))
 
@@ -64,43 +66,59 @@ async function upsertUser (fields) {
   return inserted.rows[0]
 }
 
-function signedInPage (session) {
-  const name = session.name || session.email || 'there'
-  return `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Signed in</title>
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-  <body class="login-page">
-    <div class="overlay">
-      <section class="dialog" role="status">
-        <h1>You’re signed in</h1>
-        <p class="muted">Welcome, ${escapeHtml(name)}.</p>
-        <a class="btn btn-primary" href="/logout">Log out</a>
-      </section>
-    </div>
-  </body>
-</html>`
+function sessionPayload (user, extra = {}) {
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    ...extra
+  }
 }
 
-function escapeHtml (value) {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
+async function completeLogin (res, user) {
+  const firstLogin = user.last_login_at == null
+  const pool = await getPool()
+  await pool.query(
+    'UPDATE users SET last_login_at = now(), updated_at = now() WHERE id = $1',
+    [user.id]
+  )
+  setSession(res, sessionPayload(user, { ftue: firstLogin }))
+}
+
+function homeLocals (session) {
+  const name = session.name || ''
+  const email = session.email || ''
+  const handle = email
+    ? email.split('@')[0]
+    : String(name || 'you').toLowerCase().replace(/\s+/g, '')
+  const parts = String(name || email || 'Y').trim().split(/[\s@.]+/).filter(Boolean)
+  const initials = ((parts[0]?.[0] || 'Y') + (parts[1]?.[0] || '')).toUpperCase()
+  return {
+    name,
+    email,
+    handle,
+    initials,
+    firstLogin: Boolean(session.ftue)
+  }
 }
 
 app.get('/', (req, res) => {
   const session = readSession(req)
   if (session?.id) {
-    res.type('html').send(signedInPage(session))
+    res.render('home', homeLocals(session))
     return
   }
   res.redirect('/login')
+})
+
+app.post('/api/ftue-dismiss', (req, res) => {
+  const session = readSession(req)
+  if (!session?.id) {
+    res.status(401).json({ ok: false })
+    return
+  }
+  setSession(res, sessionPayload(session))
+  res.json({ ok: true })
 })
 
 app.get('/login', (req, res) => {
@@ -126,7 +144,7 @@ app.post('/login', async (req, res) => {
       res.redirect('/login?error=Invalid%20email%20or%20password.')
       return
     }
-    setSession(res, { id: user.id, email: user.email, name: user.name })
+    await completeLogin(res, user)
     res.redirect('/')
   } catch {
     res.redirect('/login?error=Sign-in%20is%20temporarily%20unavailable.')
@@ -205,7 +223,7 @@ app.get('/auth/google/callback', async (req, res) => {
       name: profile.name,
       googleId: profile.sub
     })
-    setSession(res, { id: user.id, email: user.email, name: user.name })
+    await completeLogin(res, user)
     res.redirect('/')
   } catch {
     res.redirect('/login?error=Google%20sign-in%20failed.')
@@ -260,7 +278,7 @@ app.get('/auth/github/callback', async (req, res) => {
       name: profile.name || profile.login,
       githubId: String(profile.id)
     })
-    setSession(res, { id: user.id, email: user.email, name: user.name })
+    await completeLogin(res, user)
     res.redirect('/')
   } catch {
     res.redirect('/login?error=GitHub%20sign-in%20failed.')

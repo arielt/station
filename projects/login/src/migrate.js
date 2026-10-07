@@ -10,11 +10,16 @@ await pool.query(`
     github_id text UNIQUE,
     name text,
     created_at timestamptz NOT NULL DEFAULT now(),
-    updated_at timestamptz NOT NULL DEFAULT now()
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    last_login_at timestamptz
   )
 `)
 await pool.query(`
   ALTER TABLE users
     ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now()
+`)
+await pool.query(`
+  ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS last_login_at timestamptz
 `)
 await pool.end()
