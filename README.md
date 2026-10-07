@@ -1,8 +1,10 @@
 # Station
 
-## Dev deployment
+Station is a web application runtime with shared infrastructure.
 
-Deploy the station:
+## Deployment
+
+Deploy an app from apps folder:
 ```
 tools/deploy google-sheet-demo
 ```
@@ -18,4 +20,7 @@ Check:
 
 
 ## TODO
-  - Add an environment support with STATION_ENV: development, production, test
+  - Let docker manage volumes
+  - Add support for STATION_ENV: development, production, test
+  - Add support for STATION_APP: path to application folder
+  - tools: apply in container
