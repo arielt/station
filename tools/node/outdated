@@ -1,0 +1,2 @@
+# usage: tools/node/outdated <folder>
+cd "$1" && npm outdated
