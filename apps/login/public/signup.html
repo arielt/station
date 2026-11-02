@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="login-page">
+    <div class="overlay">
+      <section class="dialog" role="dialog" aria-labelledby="signup-title" aria-modal="true">
+        <header class="dialog-header">
+          <div class="brand" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="32" height="32">
+              <circle cx="12" cy="12" r="12" fill="#ff4500" />
+              <circle cx="12" cy="13" r="6.2" fill="#fff" />
+              <circle cx="9.6" cy="12.4" r="1.15" fill="#1c1917" />
+              <circle cx="14.4" cy="12.4" r="1.15" fill="#1c1917" />
+            </svg>
+          </div>
+          <h1 id="signup-title">Sign Up</h1>
+          <p class="legal">
+            By continuing, you agree to our
+            <a href="https://www.tbd.com/policies/user-agreement" target="_blank" rel="noreferrer">User Agreement</a>
+            and acknowledge that you understand the
+            <a href="https://www.tbd.com/policies/privacy-policy" target="_blank" rel="noreferrer">Privacy Policy</a>.
+          </p>
+        </header>
+
+        <p id="login-error" class="error" hidden></p>
+
+        <form id="signup-form" class="form" method="post" action="/signup">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required />
+
+          <label for="username">Username</label>
+          <input id="username" name="username" type="text" autocomplete="username" minlength="3" maxlength="32" pattern="[A-Za-z0-9_]{3,32}" required />
+
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required />
+
+          <button class="btn btn-primary" type="submit">Sign Up</button>
+        </form>
+
+        <p class="footer-note">Already have an account? <a href="/login">Log In</a></p>
+      </section>
+    </div>
+    <script src="/login.js"></script>
+  </body>
+</html>

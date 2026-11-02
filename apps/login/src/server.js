@@ -3,7 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getPool } from './db.js'
 import { readSecret } from './secrets.js'
-import { clearSession, randomState, readSession, setSession, verifyPassword } from './session.js'
+import { clearSession, hashPassword, randomState, readSession, setSession, verifyPassword } from './session.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const publicDir = path.join(__dirname, '../public')
@@ -71,8 +71,23 @@ function sessionPayload (user, extra = {}) {
     id: user.id,
     email: user.email,
     name: user.name,
+    username: user.username,
     ...extra
   }
+}
+
+const usernamePattern = /^[a-z0-9_]{3,32}$/
+
+function normalizeEmail (value) {
+  return String(value || '').trim().toLowerCase()
+}
+
+function normalizeUsername (value) {
+  return String(value || '').trim().toLowerCase()
+}
+
+function isEmail (value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 }
 
 async function completeLogin (res, user) {
@@ -88,10 +103,9 @@ async function completeLogin (res, user) {
 function homeLocals (session) {
   const name = session.name || ''
   const email = session.email || ''
-  const handle = email
-    ? email.split('@')[0]
-    : String(name || 'you').toLowerCase().replace(/\s+/g, '')
-  const parts = String(name || email || 'Y').trim().split(/[\s@.]+/).filter(Boolean)
+  const handle = session.username ||
+    (email ? email.split('@')[0] : String(name || 'you').toLowerCase().replace(/\s+/g, ''))
+  const parts = String(name || handle || email || 'Y').trim().split(/[\s@.]+/).filter(Boolean)
   const initials = ((parts[0]?.[0] || 'Y') + (parts[1]?.[0] || '')).toUpperCase()
   return {
     name,
@@ -129,25 +143,73 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(publicDir, 'login.html'))
 })
 
+app.get('/signup', (req, res) => {
+  if (readSession(req)?.id) {
+    res.redirect('/')
+    return
+  }
+  res.sendFile(path.join(publicDir, 'signup.html'))
+})
+
 app.post('/login', async (req, res) => {
-  const email = typeof req.body?.email === 'string' ? req.body.email.trim() : ''
+  const identifier = typeof req.body?.email === 'string' ? req.body.email.trim() : ''
   const password = typeof req.body?.password === 'string' ? req.body.password : ''
-  if (!email || !password) {
-    res.redirect('/login?error=Enter%20an%20email%20and%20password.')
+  if (!identifier || !password) {
+    res.redirect('/login?error=Enter%20an%20email%20or%20username%20and%20password.')
     return
   }
   try {
     const pool = await getPool()
-    const found = await pool.query('SELECT * FROM users WHERE email = $1 LIMIT 1', [email])
+    const found = await pool.query(
+      `SELECT * FROM users
+       WHERE lower(email) = lower($1) OR lower(username) = lower($1)
+       LIMIT 1`,
+      [identifier]
+    )
     const user = found.rows[0]
     if (!user || !verifyPassword(password, user.password_hash)) {
-      res.redirect('/login?error=Invalid%20email%20or%20password.')
+      res.redirect('/login?error=Invalid%20email,%20username,%20or%20password.')
       return
     }
     await completeLogin(res, user)
     res.redirect('/')
   } catch {
     res.redirect('/login?error=Sign-in%20is%20temporarily%20unavailable.')
+  }
+})
+
+app.post('/signup', async (req, res) => {
+  const email = normalizeEmail(req.body?.email)
+  const username = normalizeUsername(req.body?.username)
+  const password = typeof req.body?.password === 'string' ? req.body.password : ''
+  if (!email || !isEmail(email)) {
+    res.redirect('/signup?error=Enter%20a%20valid%20email%20address.')
+    return
+  }
+  if (!usernamePattern.test(username)) {
+    res.redirect('/signup?error=Username%20must%20be%203-32%20letters,%20numbers,%20or%20underscores.')
+    return
+  }
+  if (password.length < 8) {
+    res.redirect('/signup?error=Password%20must%20be%20at%20least%208%20characters.')
+    return
+  }
+  try {
+    const pool = await getPool()
+    const inserted = await pool.query(
+      `INSERT INTO users (email, username, password_hash, name)
+       VALUES ($1, $2, $3, $4)
+       RETURNING *`,
+      [email, username, hashPassword(password), username]
+    )
+    await completeLogin(res, inserted.rows[0])
+    res.redirect('/')
+  } catch (err) {
+    if (err?.code === '23505') {
+      res.redirect('/signup?error=That%20email%20or%20username%20is%20already%20taken.')
+      return
+    }
+    res.redirect('/signup?error=Sign-up%20is%20temporarily%20unavailable.')
   }
 })
 

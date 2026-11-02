@@ -5,6 +5,7 @@ await pool.query(`
   CREATE TABLE IF NOT EXISTS users (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     email text UNIQUE,
+    username text UNIQUE,
     password_hash text,
     google_id text UNIQUE,
     github_id text UNIQUE,
@@ -21,5 +22,9 @@ await pool.query(`
 await pool.query(`
   ALTER TABLE users
     ADD COLUMN IF NOT EXISTS last_login_at timestamptz
+`)
+await pool.query(`
+  ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS username text UNIQUE
 `)
 await pool.end()
