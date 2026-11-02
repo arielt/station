@@ -10,7 +10,23 @@ UNSEAL_KEY_FILE="${DATA_DIR}/unseal-key"
 INIT_ROOT_TOKEN_FILE="${DATA_DIR}/init-root-token"
 ROOT_TOKEN_ID="${VAULT_DEV_ROOT_TOKEN_ID:-root}"
 
-mkdir -p "${DATA_DIR}/data"
+mkdir -p "${DATA_DIR}/data" "${DATA_DIR}/raft"
+file_data=$(ls -A "${DATA_DIR}/data" 2>/dev/null || true)
+raft_data=$(ls -A "${DATA_DIR}/raft" 2>/dev/null || true)
+if [ -n "$file_data" ] && [ -z "$raft_data" ]; then
+  cat > /tmp/migrate.hcl <<EOF
+storage_source "file" {
+  path = "${DATA_DIR}/data"
+}
+storage_destination "raft" {
+  path    = "${DATA_DIR}/raft"
+  node_id = "node1"
+}
+cluster_addr = "http://127.0.0.1:8201"
+EOF
+  echo "*** Migrating file storage to raft"
+  bao operator migrate -config=/tmp/migrate.hcl
+fi
 chown -R openbao:openbao "${DATA_DIR}"
 
 su-exec openbao bao server -config=/openbao/config/vault.hcl &
