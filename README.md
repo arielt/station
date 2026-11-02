@@ -20,6 +20,3 @@ Check:
 
 
 ## TODO
-  - Add support for STATION_ENV: development, production, test
-  - Add support for STATION_APP: path to application folder
-  - tools: apply in container

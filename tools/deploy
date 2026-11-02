@@ -1,6 +1,6 @@
-# usage: tools/deploy [--app] [project]
+# usage: tools/deploy [--app] [app name]
 APP_ONLY=0
-PROJECT=""
+STATION_APP=""
 STATION_ENV="development"
 
 for arg in "$@"; do
@@ -13,22 +13,22 @@ for arg in "$@"; do
       exit 1
       ;;
     *)
-      PROJECT="$arg"
+      STATION_APP="$arg"
       ;;
   esac
 done
-PROJECT="${PROJECT:-google-sheet-demo}"
-export PROJECT
+STATION_APP="${STATION_APP:-google-sheet-demo}"
+export STATION_APP
 
 COMPOSE="docker compose -f deployments/$STATION_ENV/docker-compose.yml"
 
 if [ "$APP_ONLY" = 1 ]; then
-  $COMPOSE build --build-arg PROJECT="$PROJECT" app
+  $COMPOSE build --build-arg STATION_APP="$STATION_APP" app
   $COMPOSE up --detach --no-deps --force-recreate app
   exit 0
 fi
 
 $COMPOSE stop
 $COMPOSE pull
-$COMPOSE build --build-arg PROJECT="$PROJECT"
+$COMPOSE build --build-arg STATION_APP="$STATION_APP"
 $COMPOSE up --detach
