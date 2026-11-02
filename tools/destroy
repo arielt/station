@@ -1,11 +1,14 @@
 # usage: tools/destroy
 # STATION_APP is the path to the app root.
+# STATION_ENV is the environment name and Compose project name.
+if [ -z "${STATION_ENV}" ]; then
+  echo "STATION_ENV must be set" >&2
+  exit 1
+fi
 if [ -z "${STATION_APP}" ]; then
   echo "STATION_APP must be set to the app root path" >&2
   exit 1
 fi
-STATION_ENV="development"
-export STATION_APP
 
 COMPOSE="docker compose -f deployments/$STATION_ENV/docker-compose.yml"
 

@@ -1,8 +1,8 @@
-name: development
+name: ${STATION_ENV:?STATION_ENV must be set}
 
 services:
   app:
-    container_name: app
+    container_name: ${STATION_ENV}-app
     depends_on:
       vault-agent:
         condition: service_started
@@ -22,7 +22,7 @@ services:
       - internal
 
   db:
-    container_name: db
+    container_name: ${STATION_ENV}-db
     image: postgres:18
     restart: unless-stopped
     depends_on:
@@ -45,7 +45,7 @@ services:
 
   vault-agent:
     image: openbao/openbao:latest
-    container_name: vault-agent
+    container_name: ${STATION_ENV}-vault-agent
     depends_on:
       vault:
         condition: service_healthy
@@ -63,7 +63,7 @@ services:
 
   vault:
     image: openbao/openbao:latest
-    container_name: vault
+    container_name: ${STATION_ENV}-vault
     user: "0"
     ports:
       - "127.0.0.1:8200:8200"

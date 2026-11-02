@@ -1,7 +1,7 @@
 # usage: tools/deploy [--app]
 # STATION_APP is the path to the app root.
+# STATION_ENV is the environment name and Compose project name.
 APP_ONLY=0
-STATION_ENV="development"
 
 for arg in "$@"; do
   case "$arg" in
@@ -15,11 +15,14 @@ for arg in "$@"; do
   esac
 done
 
+if [ -z "${STATION_ENV}" ]; then
+  echo "STATION_ENV must be set" >&2
+  exit 1
+fi
 if [ -z "${STATION_APP}" ]; then
   echo "STATION_APP must be set to the app root path" >&2
   exit 1
 fi
-export STATION_APP
 
 COMPOSE="docker compose -f deployments/$STATION_ENV/docker-compose.yml"
 
