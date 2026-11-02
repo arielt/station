@@ -1,0 +1,8 @@
+# usage: tools/destroy
+STATION_APP="${STATION_APP:-google-sheet-demo}"
+STATION_ENV="development"
+export STATION_APP
+
+COMPOSE="docker compose -f deployments/$STATION_ENV/docker-compose.yml"
+
+$COMPOSE down --volumes --rmi all --remove-orphans
