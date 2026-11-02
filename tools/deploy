@@ -1,6 +1,6 @@
-# usage: tools/deploy [--app] [app name]
+# usage: tools/deploy [--app]
+# STATION_APP is the path to the app root.
 APP_ONLY=0
-STATION_APP=""
 STATION_ENV="development"
 
 for arg in "$@"; do
@@ -8,16 +8,17 @@ for arg in "$@"; do
     --app|-app)
       APP_ONLY=1
       ;;
-    -*)
-      echo "unknown flag: $arg" >&2
-      exit 1
-      ;;
     *)
-      STATION_APP="$arg"
+      echo "unknown argument: $arg" >&2
+      exit 1
       ;;
   esac
 done
-STATION_APP="${STATION_APP:-google-sheet-demo}"
+
+if [ -z "${STATION_APP}" ]; then
+  echo "STATION_APP must be set to the app root path" >&2
+  exit 1
+fi
 export STATION_APP
 
 COMPOSE="docker compose -f deployments/$STATION_ENV/docker-compose.yml"

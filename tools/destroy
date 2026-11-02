@@ -1,5 +1,9 @@
 # usage: tools/destroy
-STATION_APP="${STATION_APP:-google-sheet-demo}"
+# STATION_APP is the path to the app root.
+if [ -z "${STATION_APP}" ]; then
+  echo "STATION_APP must be set to the app root path" >&2
+  exit 1
+fi
 STATION_ENV="development"
 export STATION_APP
 

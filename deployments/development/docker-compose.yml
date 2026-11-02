@@ -10,7 +10,7 @@ services:
       context: ../..
       dockerfile: deployments/docker/Dockerfile.app
       args:
-        STATION_APP: ${STATION_APP}
+        STATION_APP: ${STATION_APP:?STATION_APP must be set to the app root path}
     ports:
       - "127.0.0.1:8888:80"
     environment:

@@ -4,9 +4,9 @@ Station is a web application runtime with shared infrastructure.
 
 ## Deployment
 
-Deploy an app from apps folder:
+Deploy an app. `STATION_APP` is the path to the app root, relative to the repo root:
 ```
-tools/deploy google-sheet-demo
+STATION_APP=apps/google-sheet-demo tools/deploy
 ```
 
 Configure platform secrets in the vault (http://127.0.0.1:8200). Those will be mounted on tmpfs /run/secrets volumes of respective containers.
@@ -19,3 +19,5 @@ Check:
   - DB: 127.0.0.1:5432
 
 ## TODO
+
+  - Enforce STATION_ENV
