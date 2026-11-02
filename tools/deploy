@@ -1,6 +1,8 @@
 # usage: tools/deploy [--app] [project]
 APP_ONLY=0
 PROJECT=""
+STATION_ENV="development"
+
 for arg in "$@"; do
   case "$arg" in
     --app|-app)
@@ -18,7 +20,7 @@ done
 PROJECT="${PROJECT:-google-sheet-demo}"
 export PROJECT
 
-COMPOSE="docker compose -f deployments/dev/docker-compose.yml"
+COMPOSE="docker compose -f deployments/$STATION_ENV/docker-compose.yml"
 
 if [ "$APP_ONLY" = 1 ]; then
   $COMPOSE build --build-arg PROJECT="$PROJECT" app
