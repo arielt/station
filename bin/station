@@ -52,17 +52,22 @@ def main(argv: list[str]) -> int:
         if command == "create":
             if len(argv) != 3:
                 raise StationError("usage: station create <path>")
+        elif command == "deploy":
+            if len(argv) != 2:
+                raise StationError("usage: station deploy")
+        elif command == "destroy":
+            if len(argv) != 2:
+                raise StationError("usage: station destroy")
+        else:
+            raise StationError(f"unknown command: {command}")
+        environment = selected_environment()
+        print(f"STATION_ENV={environment}", flush=True)
+        if command == "create":
             create(argv[2])
             return 0
         if command == "deploy":
-            if len(argv) != 2:
-                raise StationError("usage: station deploy")
-            return deploy()
-        if command == "destroy":
-            if len(argv) != 2:
-                raise StationError("usage: station destroy")
-            return destroy()
-        raise StationError(f"unknown command: {command}")
+            return deploy(environment)
+        return destroy(environment)
     except StationError as error:
         print(f"station: {error}", file=sys.stderr)
         return 1
@@ -100,22 +105,20 @@ def create(argument: str) -> None:
     print(f"created {display}")
 
 
-def deploy() -> int:
+def deploy(environment: str) -> int:
     root = project_root()
     config = load_config(root / "station.yaml")
-    environment = selected_environment()
     compose_path = compose_file(root, environment)
     ensure_sources(root, config)
-    print(f"deploying {config['name']} ({environment})")
+    print(f"deploying {config['name']} ({environment})", flush=True)
     return run_command(["docker", "compose", "-f", str(compose_path), "up", "--detach", "--build", "--remove-orphans"])
 
 
-def destroy() -> int:
+def destroy(environment: str) -> int:
     root = project_root()
     config = load_config(root / "station.yaml")
-    environment = selected_environment()
     compose_path = compose_file(root, environment)
-    print(f"destroying {config['name']} ({environment})")
+    print(f"destroying {config['name']} ({environment})", flush=True)
     return run_command([
         "docker", "compose", "-f", str(compose_path),
         "down", "--volumes", "--rmi", "all", "--remove-orphans",
