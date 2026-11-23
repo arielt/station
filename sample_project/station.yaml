@@ -1,0 +1,20 @@
+name: sample_project
+description: "Sample project with 3 apps and shared database, vault and monitoring."
+
+apps:
+  connector:
+    path: apps/connector
+  google_sheet_demo:
+    path: apps/google_sheet_demo
+  login:
+    git: https://github.com/sample/sample
+
+db:
+  image: postgres:18
+
+vault:
+  image: openbao/openbao:latest
+
+monitor:
+  agent: true
+  hub: true
