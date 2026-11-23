@@ -21,18 +21,13 @@ template_config {
 }
 
 template {
-  destination = "/tmp/.rendered-db"
-  contents    = "{{ with secret \"secret/data/platform/db\" }}{{ range $k, $v := .Data.data }}{{ $v | writeToFile (printf \"/run/db-secrets/%s\" $k) \"\" \"\" \"0644\" }}{{ end }}{{ end }}"
-}
-
-template {
-  destination = "/tmp/.rendered-connector-db"
-  contents    = "{{ with secret \"secret/data/platform/db\" }}{{ range $k, $v := .Data.data }}{{ $v | writeToFile (printf \"/run/secrets/connector/%s\" $k) \"\" \"\" \"0644\" }}{{ end }}{{ end }}"
+  destination = "/tmp/.rendered-platform"
+  contents    = "{{ with secret \"secret/data/sample_project-platform-production\" }}{{ range $k, $v := .Data.data }}{{ $v | writeToFile (printf \"/run/db-secrets/%s\" $k) \"\" \"\" \"0644\" }}{{ end }}{{ end }}"
 }
 
 template {
   destination = "/tmp/.rendered-connector-platform"
-  contents    = "{{ with secret \"secret/data/platform/app\" }}{{ range $k, $v := .Data.data }}{{ $v | writeToFile (printf \"/run/secrets/connector/%s\" $k) \"\" \"\" \"0644\" }}{{ end }}{{ end }}"
+  contents    = "{{ with secret \"secret/data/sample_project-platform-production\" }}{{ range $k, $v := .Data.data }}{{ $v | writeToFile (printf \"/run/secrets/connector/%s\" $k) \"\" \"\" \"0644\" }}{{ end }}{{ end }}"
 }
 
 template {
@@ -41,13 +36,8 @@ template {
 }
 
 template {
-  destination = "/tmp/.rendered-google_sheet_demo-db"
-  contents    = "{{ with secret \"secret/data/platform/db\" }}{{ range $k, $v := .Data.data }}{{ $v | writeToFile (printf \"/run/secrets/google_sheet_demo/%s\" $k) \"\" \"\" \"0644\" }}{{ end }}{{ end }}"
-}
-
-template {
   destination = "/tmp/.rendered-google_sheet_demo-platform"
-  contents    = "{{ with secret \"secret/data/platform/app\" }}{{ range $k, $v := .Data.data }}{{ $v | writeToFile (printf \"/run/secrets/google_sheet_demo/%s\" $k) \"\" \"\" \"0644\" }}{{ end }}{{ end }}"
+  contents    = "{{ with secret \"secret/data/sample_project-platform-production\" }}{{ range $k, $v := .Data.data }}{{ $v | writeToFile (printf \"/run/secrets/google_sheet_demo/%s\" $k) \"\" \"\" \"0644\" }}{{ end }}{{ end }}"
 }
 
 template {
@@ -56,13 +46,8 @@ template {
 }
 
 template {
-  destination = "/tmp/.rendered-login-db"
-  contents    = "{{ with secret \"secret/data/platform/db\" }}{{ range $k, $v := .Data.data }}{{ $v | writeToFile (printf \"/run/secrets/login/%s\" $k) \"\" \"\" \"0644\" }}{{ end }}{{ end }}"
-}
-
-template {
   destination = "/tmp/.rendered-login-platform"
-  contents    = "{{ with secret \"secret/data/platform/app\" }}{{ range $k, $v := .Data.data }}{{ $v | writeToFile (printf \"/run/secrets/login/%s\" $k) \"\" \"\" \"0644\" }}{{ end }}{{ end }}"
+  contents    = "{{ with secret \"secret/data/sample_project-platform-production\" }}{{ range $k, $v := .Data.data }}{{ $v | writeToFile (printf \"/run/secrets/login/%s\" $k) \"\" \"\" \"0644\" }}{{ end }}{{ end }}"
 }
 
 template {

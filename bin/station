@@ -590,13 +590,13 @@ def agent_hcl(config: dict[str, Any], environment: str) -> str:
         "  exit_on_retry_failure         = false",
         "}",
         "",
-        secret_template("db", "platform/db", "/run/db-secrets"),
+        secret_template("platform", f"{config['name']}-platform-{environment}", "/run/db-secrets"),
     ]
     for name in config["apps"]:
         vault_name = f"{config['name']}-{name}-{environment}"
+        platform_path = f"{config['name']}-platform-{environment}"
         directory = f"/run/secrets/{name}"
-        blocks.append(secret_template(f"{name}-db", "platform/db", directory))
-        blocks.append(secret_template(f"{name}-platform", "platform/app", directory))
+        blocks.append(secret_template(f"{name}-platform", platform_path, directory))
         blocks.append(secret_template(f"{name}-own", vault_name, directory))
     return "\n".join(blocks)
 
@@ -682,42 +682,43 @@ def run_vault_script(config: dict[str, Any], environment: str) -> str:
 
     function = ""
     if config["apps"]:
-        function = """
-bootstrap_app() {
+        platform_path = f"{config['name']}-platform-{environment}"
+        function = f"""
+bootstrap_app() {{
   vault_name="$1"
   cat > /tmp/app-policy.hcl <<EOF
-path "secret/data/platform/db" {
+path "secret/data/{platform_path}" {{
   capabilities = ["read"]
-}
-path "secret/data/platform/app" {
+}}
+path "secret/metadata/{platform_path}" {{
   capabilities = ["read"]
-}
-path "secret/data/${vault_name}" {
+}}
+path "secret/data/${{vault_name}}" {{
   capabilities = ["read"]
-}
-path "secret/metadata/${vault_name}" {
+}}
+path "secret/metadata/${{vault_name}}" {{
   capabilities = ["read"]
-}
+}}
 EOF
   VAULT_TOKEN="$token" bao policy write "$vault_name" /tmp/app-policy.hcl
-  VAULT_TOKEN="$token" bao write "auth/approle/role/${vault_name}" \\
+  VAULT_TOKEN="$token" bao write "auth/approle/role/${{vault_name}}" \\
     token_ttl=1h \\
     token_max_ttl=24h \\
     token_num_uses=0 \\
     secret_id_ttl=0 \\
     secret_id_num_uses=0 \\
-    token_policies="default,${vault_name}"
+    token_policies="default,${{vault_name}}"
 
-  role_id=$(VAULT_TOKEN="$token" bao read -field=role_id "auth/approle/role/${vault_name}/role-id")
-  secret_id=$(VAULT_TOKEN="$token" bao write -f -field=secret_id "auth/approle/role/${vault_name}/secret-id")
-  if ! VAULT_TOKEN="$token" bao kv patch "secret/${vault_name}" \\
+  role_id=$(VAULT_TOKEN="$token" bao read -field=role_id "auth/approle/role/${{vault_name}}/role-id")
+  secret_id=$(VAULT_TOKEN="$token" bao write -f -field=secret_id "auth/approle/role/${{vault_name}}/secret-id")
+  if ! VAULT_TOKEN="$token" bao kv patch "secret/${{vault_name}}" \\
     approle_role_id="$role_id" \\
     approle_secret_id="$secret_id"; then
-    VAULT_TOKEN="$token" bao kv put "secret/${vault_name}" \\
+    VAULT_TOKEN="$token" bao kv put "secret/${{vault_name}}" \\
       approle_role_id="$role_id" \\
       approle_secret_id="$secret_id"
   fi
-}
+}}
 """
 
     return f"""\

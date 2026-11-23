@@ -34,4 +34,5 @@ sample_project/
   - Folders, source files, packages: lowercase with underscores
   - Container name: ```<project>-<application>-<environment>```
   - DB name: ```<project>_<application>_<environment>```
-  - Vault path: ```<project>-<application>-<environment>```
+  - Vault platform path: ```<project>-platform-<environment>```
+  - Vault application path: ```<project>-<application>-<environment>```

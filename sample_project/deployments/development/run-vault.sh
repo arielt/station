@@ -66,10 +66,10 @@ fi
 bootstrap_app() {
   vault_name="$1"
   cat > /tmp/app-policy.hcl <<EOF
-path "secret/data/platform/db" {
+path "secret/data/sample_project-platform-development" {
   capabilities = ["read"]
 }
-path "secret/data/platform/app" {
+path "secret/metadata/sample_project-platform-development" {
   capabilities = ["read"]
 }
 path "secret/data/${vault_name}" {

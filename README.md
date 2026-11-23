@@ -22,8 +22,8 @@ STATION_ENV=development station deploy
 
 Configure platform secrets in the vault (http://127.0.0.1:8200). Those will be mounted on tmpfs /run/secrets volumes of respective containers.
 
-  - Postgres password: secret/platform/db/postgres_passwd
-  - App platform secrets: secret/platform/app/...
+  - Platform secrets, including the Postgres password field `postgres_passwd`: `secret/<project>-platform-<environment>`
+  - Application secrets: `secret/<project>-<application>-<environment>`
 
 Check:
   - App: http://127.0.0.1:8888
@@ -42,10 +42,6 @@ Station configuration file station.yaml is placed in the root of the station pro
 
 ## TODO
 
-  - Propagate environment to database. Database definetely can be shared by different apps in the same environment. Follow Rails convention.
-  - Share vault between multiple applications.
-  - station create: initialize and bootstrap a new project
-  - station create .: regenerate configurations from station.yaml
-  - station deploy
-  - station destroy
+  - bin/station: deny reserved names in apps: db, vault, vault-agent, platform
+  - printout deployment endpoints, like apps, db, vault, monitoring
   - production: pull from the registry: https://oneuptime.com/blog/post/2026-02-08-how-to-use-docker-compose-with-pre-built-images-only/view
