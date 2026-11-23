@@ -7,11 +7,16 @@ Core rules:
   - Environment embedded everywhere. Clear separation and safety. Think about test and development sharing the same database.
   - Multiple apps, shared infrastructure. It is not a single app anymore.
 
+## Project
+
+To create a Station project, run `station create new_project`. Same command to regenerate files of existing project.
+
+
 ## Deployment
 
-Deploy an app.
+To deploy a project, run this in the project rool folder:
 ```
-STATION_ENV=development bin/station deploy
+STATION_ENV=development station deploy
 ```
 `STATION_ENV` is the environment name. If not specified, defaults to `development`.
 
@@ -24,13 +29,12 @@ Check:
   - App: http://127.0.0.1:8888
   - DB: 127.0.0.1:5432
 
-## Naming conventions
+## Clenup
 
-Container: ```<project>-<application>-<environment>```
-
-DB: ```<project>_<application>_<environment>```
-
-Vault: ```<project>-<application>-<environment>```
+To remove all project containers, volumes and unused images, run in the project root:
+```
+station destroy
+```
 
 ## Sample station configuration file
 

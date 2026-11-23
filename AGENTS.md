@@ -9,9 +9,9 @@ Implementation language: python 3.
 ## Testing instructions
 
   - Run `bin/station create sample_project` to regenerate the project from `sample_project/station.yaml`.
-  - Cleanup `tmp/` folder and run `bin/station create tmp/sample_project` to create an empty project.
-  - Run `../bin/station deploy` in sample_project folder.
-  - Run `../bin/station destroy` in sample_project folder.
+  - Cleanup `tmp/` folder and run `bin/station create tmp/new_project` to create an empty project.
+  - Run `../../bin/station deploy` in tmp/new_project folder.
+  - Run `../../bin/station destroy` in tmp/new_project folder.
 
 ## Structure
 
@@ -28,5 +28,10 @@ sample_project/
 
 ## Naming conventions
 
-  - project name: lowercase with underscores
-  - folders, source files, packages: lowercase with underscores
+## Naming conventions
+
+  - Project name: lowercase with underscores
+  - Folders, source files, packages: lowercase with underscores
+  - Container name: ```<project>-<application>-<environment>```
+  - DB name: ```<project>_<application>_<environment>```
+  - Vault path: ```<project>-<application>-<environment>```
