@@ -7,7 +7,7 @@ apps:
   google_sheet_demo:
     path: apps/google_sheet_demo
   login:
-    git: https://github.com/sample/sample
+    path: apps/login
 
 db:
   image: postgres:18

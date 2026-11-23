@@ -14,7 +14,7 @@ To create a Station project, run `station create new_project`. Same command to r
 
 ## Deployment
 
-To deploy a project, run this in the project rool folder:
+To deploy a project, run this in the project's root folder:
 ```
 STATION_ENV=development station deploy
 ```
