@@ -9,25 +9,33 @@ Core rules:
 
 ## Project
 
-To create a Station project, run `station create new_project`. Same command to regenerate files of existing project.
+To create a Station project, run `station create new_project`. Same command to regenerate existing project.
 
 
 ## Deployment
 
-To deploy a project, run this in the project's root folder:
+To deploy a project, run in the project's root folder:
 ```
 STATION_ENV=development station deploy
 ```
 `STATION_ENV` is the environment name. If not specified, defaults to `development`.
 
-Configure platform secrets in the vault (http://127.0.0.1:8200). Those will be mounted on tmpfs /run/secrets volumes of respective containers.
+List endpoints:
+```
+STATION_ENV=development station endpoints
+STATION_ENV=development
+connector          http      http://127.0.0.1:8888
+google_sheet_demo  http      http://127.0.0.1:8889
+login              http      http://127.0.0.1:8890
+vault              http      http://127.0.0.1:8200
+db                 postgres  postgres://127.0.0.1:5432
+```
 
+Configure platform secrets in the vault, using vault endpoint.
   - Platform secrets, including the Postgres password field `postgres_passwd`: `secret/<project>-platform-<environment>`
   - Application secrets: `secret/<project>-<application>-<environment>`
 
-Check:
-  - App: http://127.0.0.1:8888
-  - DB: 127.0.0.1:5432
+Check application endpoints.
 
 ## Clenup
 
@@ -43,5 +51,4 @@ Station configuration file station.yaml is placed in the root of the station pro
 ## TODO
 
   - bin/station: deny reserved names in apps: db, vault, vault-agent, platform
-  - printout deployment endpoints, like apps, db, vault, monitoring
   - production: pull from the registry: https://oneuptime.com/blog/post/2026-02-08-how-to-use-docker-compose-with-pre-built-images-only/view

@@ -27,12 +27,14 @@ USAGE = """\
 usage: station create <path>
        station deploy
        station destroy
+       station endpoints
 
 STATION_ENV selects development, test, or production. The default is development.
 
-  create <path>  Create an empty project, or regenerate deployments from station.yaml
-  deploy         Deploy the project in the current directory
-  destroy        Remove the project deployment in the current directory
+  create <path>  Create an empty project, or regenerate project from station.yaml
+  deploy         Deploy the project
+  destroy        Remove all project containers, volumes and unused images
+  endpoints      List endpoints for the current project
 """
 
 
@@ -58,6 +60,9 @@ def main(argv: list[str]) -> int:
         elif command == "destroy":
             if len(argv) != 2:
                 raise StationError("usage: station destroy")
+        elif command == "endpoints":
+            if len(argv) != 2:
+                raise StationError("usage: station endpoints")
         else:
             raise StationError(f"unknown command: {command}")
         environment = selected_environment()
@@ -67,7 +72,10 @@ def main(argv: list[str]) -> int:
             return 0
         if command == "deploy":
             return deploy(environment)
-        return destroy(environment)
+        if command == "destroy":
+            return destroy(environment)
+        endpoints(environment)
+        return 0
     except StationError as error:
         print(f"station: {error}", file=sys.stderr)
         return 1
@@ -112,6 +120,27 @@ def deploy(environment: str) -> int:
     ensure_sources(root, config)
     print(f"deploying {config['name']} ({environment})", flush=True)
     return run_command(["docker", "compose", "-f", str(compose_path), "up", "--detach", "--build", "--remove-orphans"])
+
+
+def endpoints(environment: str) -> None:
+    config = load_config(project_root() / "station.yaml")
+    ports = HOST_PORTS[environment]
+    rows = [
+        (name, "http", f"http://127.0.0.1:{ports['app'] + index}")
+        for index, name in enumerate(config["apps"])
+    ]
+    rows.append(("vault", "http", f"http://127.0.0.1:{ports['vault']}"))
+    rows.append(("db", "postgres", f"postgres://127.0.0.1:{ports['db']}"))
+    name_width = max(len(name) for name, _, _ in rows)
+    protocol_width = max(len(protocol) for _, protocol, _ in rows)
+    for name, protocol, url in rows:
+        print(f"{name:<{name_width}}  {protocol:<{protocol_width}}  {terminal_link(url)}", flush=True)
+
+
+def terminal_link(url: str) -> str:
+    if not sys.stdout.isatty():
+        return url
+    return f"\033]8;;{url}\033\\{url}\033]8;;\033\\"
 
 
 def destroy(environment: str) -> int:
