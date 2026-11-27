@@ -50,5 +50,4 @@ Station configuration file station.yaml is placed in the root of the station pro
 
 ## TODO
 
-  - bin/station: deny reserved names in apps: db, vault, vault-agent, platform
   - production: pull from the registry: https://oneuptime.com/blog/post/2026-02-08-how-to-use-docker-compose-with-pre-built-images-only/view
