@@ -830,40 +830,35 @@ wait "$pid"
 """
 
 
-def dockerfile_app() -> str:
-    path = Path(__file__).resolve().parent.parent / "docker" / "Dockerfile.app"
+def docker_template(name: str) -> str:
+    path = Path(__file__).resolve().parent.parent / "docker" / name
     try:
-        text = path.read_text(encoding="utf-8")
+        return path.read_text(encoding="utf-8")
     except OSError as error:
         raise StationError(error.strerror or f"cannot read {path}") from error
+
+
+def with_generated_banner(text: str) -> str:
     banner = f"# {GENERATED}\n"
-    if not text.startswith(banner):
-        text = banner + text
-    return text
+    if text.startswith("#!"):
+        line_end = text.find("\n")
+        if line_end == -1:
+            return text + "\n" + banner
+        rest = text[line_end + 1:]
+        if rest.startswith(banner):
+            return text
+        return text[:line_end + 1] + banner + rest
+    if text.startswith(banner):
+        return text
+    return banner + text
+
+
+def dockerfile_app() -> str:
+    return with_generated_banner(docker_template("Dockerfile.app"))
 
 
 def run_app_script() -> str:
-    return f"""\
-#!/bin/sh
-# {GENERATED}
-
-# Watchdog for an app container.
-# Run npm install on startup for the sake of platform-sensitive packages.
-npm install
-
-# execute migrations once database is up
-npm run create
-until npm run migrate
-do
-npm run create
-done
-
-while true; do
-    npm run http
-    echo "Process exited with code $?.  Respawning.." >&2
-    sleep 1
-done
-"""
+    return with_generated_banner(docker_template("run-app.sh"))
 
 
 if __name__ == "__main__":
