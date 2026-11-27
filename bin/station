@@ -831,20 +831,15 @@ wait "$pid"
 
 
 def dockerfile_app() -> str:
-    return f"""\
-# {GENERATED}
-FROM node:24-alpine
-
-ARG STATION_APP
-
-WORKDIR /usr/src/app
-
-COPY ${{STATION_APP}}/package*.json ./
-COPY ${{STATION_APP}}/ .
-COPY deployments/docker/run-app.sh ./deployments/docker/run-app.sh
-
-CMD [ "sh", "./deployments/docker/run-app.sh" ]
-"""
+    path = Path(__file__).resolve().parent.parent / "docker" / "Dockerfile.app"
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError as error:
+        raise StationError(error.strerror or f"cannot read {path}") from error
+    banner = f"# {GENERATED}\n"
+    if not text.startswith(banner):
+        text = banner + text
+    return text
 
 
 def run_app_script() -> str:
