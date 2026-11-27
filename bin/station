@@ -702,143 +702,18 @@ SQL
 
 
 def run_vault_script(config: dict[str, Any], environment: str) -> str:
-    calls = []
-    for name in config["apps"]:
-        calls.append(f'  bootstrap_app "{config["name"]}-{name}-{environment}"')
-    app_setup = "\n".join(calls)
-    if app_setup:
-        app_block = f"""
-  if ! VAULT_TOKEN="$token" bao auth list -format=json 2>/dev/null | grep -q '"approle/"'; then
-    VAULT_TOKEN="$token" bao auth enable approle
-  fi
-{app_setup}
-"""
-    else:
-        app_block = ""
-
-    function = ""
-    if config["apps"]:
-        platform_path = f"{config['name']}-platform-{environment}"
-        function = f"""
-bootstrap_app() {{
-  vault_name="$1"
-  cat > /tmp/app-policy.hcl <<EOF
-path "secret/data/{platform_path}" {{
-  capabilities = ["read"]
-}}
-path "secret/metadata/{platform_path}" {{
-  capabilities = ["read"]
-}}
-path "secret/data/${{vault_name}}" {{
-  capabilities = ["read"]
-}}
-path "secret/metadata/${{vault_name}}" {{
-  capabilities = ["read"]
-}}
-EOF
-  VAULT_TOKEN="$token" bao policy write "$vault_name" /tmp/app-policy.hcl
-  VAULT_TOKEN="$token" bao write "auth/approle/role/${{vault_name}}" \\
-    token_ttl=1h \\
-    token_max_ttl=24h \\
-    token_num_uses=0 \\
-    secret_id_ttl=0 \\
-    secret_id_num_uses=0 \\
-    token_policies="default,${{vault_name}}"
-
-  role_id=$(VAULT_TOKEN="$token" bao read -field=role_id "auth/approle/role/${{vault_name}}/role-id")
-  secret_id=$(VAULT_TOKEN="$token" bao write -f -field=secret_id "auth/approle/role/${{vault_name}}/secret-id")
-  if ! VAULT_TOKEN="$token" bao kv patch "secret/${{vault_name}}" \\
-    approle_role_id="$role_id" \\
-    approle_secret_id="$secret_id"; then
-    VAULT_TOKEN="$token" bao kv put "secret/${{vault_name}}" \\
-      approle_role_id="$role_id" \\
-      approle_secret_id="$secret_id"
-  fi
-}}
-"""
-
-    return f"""\
-#!/bin/sh
-# {GENERATED}
-set -eu
-
-echo "*** Executing run-vault.sh"
-
-export VAULT_ADDR="${{VAULT_ADDR:-http://127.0.0.1:8200}}"
-
-DATA_DIR=/openbao/file
-UNSEAL_KEY_FILE="${{DATA_DIR}}/unseal-key"
-INIT_ROOT_TOKEN_FILE="${{DATA_DIR}}/init-root-token"
-ROOT_TOKEN_ID="${{VAULT_DEV_ROOT_TOKEN_ID:-root}}"
-
-mkdir -p "${{DATA_DIR}}/data" "${{DATA_DIR}}/raft"
-file_data=$(ls -A "${{DATA_DIR}}/data" 2>/dev/null || true)
-raft_data=$(ls -A "${{DATA_DIR}}/raft" 2>/dev/null || true)
-if [ -n "$file_data" ] && [ -z "$raft_data" ]; then
-  cat > /tmp/migrate.hcl <<EOF
-storage_source "file" {{
-  path = "${{DATA_DIR}}/data"
-}}
-storage_destination "raft" {{
-  path    = "${{DATA_DIR}}/raft"
-  node_id = "node1"
-}}
-cluster_addr = "http://127.0.0.1:8201"
-EOF
-  echo "*** Migrating file storage to raft"
-  bao operator migrate -config=/tmp/migrate.hcl
-fi
-chown -R openbao:openbao "${{DATA_DIR}}"
-
-su-exec openbao bao server -config=/openbao/config/vault.hcl &
-pid=$!
-trap 'kill -TERM "$pid" 2>/dev/null || true; wait "$pid"' INT TERM
-
-while true; do
-  rc=0
-  bao status >/dev/null 2>&1 || rc=$?
-  if [ "$rc" = "0" ] || [ "$rc" = "2" ]; then
-    break
-  fi
-  sleep 0.25
-done
-
-status_json=$(bao status -format=json 2>/dev/null || true)
-
-if ! echo "$status_json" | grep -q '"initialized"[[:space:]]*:[[:space:]]*true'; then
-  init_out=$(bao operator init -key-shares=1 -key-threshold=1 -format=json)
-  compact=$(printf '%s' "$init_out" | tr -d '\\n')
-  printf '%s' "$compact" | sed -n 's/.*"unseal_keys_b64"[[:space:]]*:[[:space:]]*\\[[[:space:]]*"\\([^"]*\\)".*/\\1/p' > "$UNSEAL_KEY_FILE"
-  printf '%s' "$compact" | sed -n 's/.*"root_token"[[:space:]]*:[[:space:]]*"\\([^"]*\\)".*/\\1/p' > "$INIT_ROOT_TOKEN_FILE"
-  chmod 600 "$UNSEAL_KEY_FILE" "$INIT_ROOT_TOKEN_FILE"
-  chown openbao:openbao "$UNSEAL_KEY_FILE" "$INIT_ROOT_TOKEN_FILE"
-  if [ ! -s "$UNSEAL_KEY_FILE" ] || [ ! -s "$INIT_ROOT_TOKEN_FILE" ]; then
-    echo "failed to parse operator init output" >&2
-    echo "$init_out" >&2
-    exit 1
-  fi
-fi
-
-if [ -f "$UNSEAL_KEY_FILE" ]; then
-  bao operator unseal "$(cat "$UNSEAL_KEY_FILE")" >/dev/null
-fi
-{function}
-if [ -f "$INIT_ROOT_TOKEN_FILE" ]; then
-  token=$(cat "$INIT_ROOT_TOKEN_FILE")
-  if ! VAULT_TOKEN="$token" bao secrets list -format=json 2>/dev/null | grep -q '"secret/"'; then
-    VAULT_TOKEN="$token" bao secrets enable -path=secret kv-v2
-  fi
-  if ! VAULT_TOKEN="$token" bao token lookup "$ROOT_TOKEN_ID" >/dev/null 2>&1; then
-    VAULT_TOKEN="$token" bao token create -id="$ROOT_TOKEN_ID" -policy=root -orphan >/dev/null
-  fi
-{app_block}fi
-
-wait "$pid"
-"""
+    platform_path = f"{config['name']}-platform-{environment}"
+    app_vault_names = " ".join(
+        f"{config['name']}-{name}-{environment}" for name in config["apps"]
+    )
+    text = read_template("vault", "run-vault.sh")
+    text = text.replace("@PLATFORM_PATH@", platform_path)
+    text = text.replace("@APP_VAULT_NAMES@", app_vault_names)
+    return with_generated_banner(text)
 
 
-def docker_template(name: str) -> str:
-    path = Path(__file__).resolve().parent.parent / "docker" / name
+def read_template(*parts: str) -> str:
+    path = Path(__file__).resolve().parent.parent.joinpath(*parts)
     try:
         return path.read_text(encoding="utf-8")
     except OSError as error:
@@ -861,11 +736,11 @@ def with_generated_banner(text: str) -> str:
 
 
 def dockerfile_app() -> str:
-    return with_generated_banner(docker_template("Dockerfile.app"))
+    return with_generated_banner(read_template("docker", "Dockerfile.app"))
 
 
 def run_app_script() -> str:
-    return with_generated_banner(docker_template("run-app.sh"))
+    return with_generated_banner(read_template("docker", "run-app.sh"))
 
 
 if __name__ == "__main__":
