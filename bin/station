@@ -603,54 +603,22 @@ cluster_addr = "http://127.0.0.1:8201"
 
 
 def agent_hcl(config: dict[str, Any], environment: str) -> str:
-    blocks = [
-        f"# {GENERATED}",
-        "",
-        'pid_file = "/tmp/openbao-agent.pid"',
-        "",
-        "vault {",
-        '  address = "http://vault:8200"',
-        "}",
-        "",
-        "auto_auth {",
-        "  method {",
-        '    type = "token_file"',
-        "    config = {",
-        '      token_file_path = "/tmp/vault-token"',
-        "    }",
-        "  }",
-        "}",
-        "",
-        "template_config {",
-        '  static_secret_render_interval = "1m"',
-        "  exit_on_retry_failure         = false",
-        "}",
-        "",
-        secret_template("platform", f"{config['name']}-platform-{environment}", "/run/db-secrets"),
-    ]
+    text = read_template("vault", "openbao-agent.hcl")
+    header, found, stanza = text.partition("@TEMPLATE@\n")
+    if not found:
+        raise StationError("vault/openbao-agent.hcl is missing @TEMPLATE@")
+    platform_path = f"{config['name']}-platform-{environment}"
+    specs = [("platform", platform_path, "/run/db-secrets")]
     for name in config["apps"]:
-        vault_name = f"{config['name']}-{name}-{environment}"
-        platform_path = f"{config['name']}-platform-{environment}"
         directory = f"/run/secrets/{name}"
-        blocks.append(secret_template(f"{name}-platform", platform_path, directory))
-        blocks.append(secret_template(f"{name}-own", vault_name, directory))
-    return "\n".join(blocks)
-
-
-def secret_template(marker: str, secret_path: str, directory: str) -> str:
-    contents = (
-        '{{ with secret \\"secret/data/' + secret_path + '\\" }}'
-        '{{ range $k, $v := .Data.data }}'
-        '{{ $v | writeToFile (printf \\"' + directory + '/%s\\" $k) \\"\\" \\"\\" \\"0644\\" }}'
-        '{{ end }}{{ end }}'
-    )
-    return "\n".join([
-        "template {",
-        f'  destination = "/tmp/.rendered-{marker}"',
-        f'  contents    = "{contents}"',
-        "}",
-        "",
-    ])
+        specs.append((f"{name}-platform", platform_path, directory))
+        specs.append((f"{name}-own", f"{config['name']}-{name}-{environment}", directory))
+    blocks = [
+        stanza.replace("@MARKER@", marker).replace("@SECRET_PATH@", secret_path).replace("@DIRECTORY@", directory).strip()
+        for marker, secret_path, directory in specs
+    ]
+    body = header.rstrip() + "\n\n" + "\n\n".join(blocks) + "\n"
+    return f"# {GENERATED}\n\n" + body.lstrip("\n")
 
 
 def run_agent_script(config: dict[str, Any]) -> str:
